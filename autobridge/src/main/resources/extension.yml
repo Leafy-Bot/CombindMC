@@ -1,0 +1,7 @@
+id: autobridge
+name: AutoBridge
+main: autobridge.AutoBridge
+api: 2.11.2-SNAPSHOT
+authors: [AutoBridge Team]
+description: Automated mod translation bridge for Geyser — converts Java mod content to Bedrock-compatible mappings and resource packs automatically.
+version: 0.1.0-SNAPSHOT
