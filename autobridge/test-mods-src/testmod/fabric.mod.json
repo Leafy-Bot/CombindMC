@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "id": "testmod",
+  "version": "1.0.0",
+  "name": "Test Mod",
+  "description": "A test mod for AutoBridge integration testing",
+  "authors": ["AutoBridge"],
+  "license": "MIT"
+}
