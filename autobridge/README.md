@@ -49,6 +49,47 @@ Bedrock players connect → receive pack → see & interact with mod content
 | **CacheManager** | `CacheManager.java` | Persists scan results, invalidates on mod changes |
 | **GuiTranslator** | `GuiTranslator.java` | Generates form descriptions for mod GUIs (ME Terminal, Crafting CPU) |
 | **AutoBridge** | `AutoBridge.java` | Geyser Extension — wires pipeline to Geyser events |
+| **AutoBridgeConfig** | `AutoBridgeConfig.java` | Configuration management with auto-save |
+
+## Configuration
+
+AutoBridge can be configured via `autobridge.properties` in the Geyser data directory. The config file is auto-generated on first run.
+
+### Available Settings
+
+| Setting | Default | Description |
+|---------|---------|-------------|
+| `enableCache` | `true` | Enable/disable caching of scan results |
+| `generatePlaceholders` | `true` | Generate placeholder textures when real ones aren't available |
+| `maxTextureSize` | `1024` | Maximum texture size in pixels |
+| `verboseLogging` | `false` | Enable detailed logging for debugging |
+| `autoDetectGuiBlocks` | `true` | Automatically detect blocks with GUIs |
+| `cacheExpiryHours` | `24` | How long to keep cached data (hours) |
+| `modsDirectoryOverride` | `""` | Override the mods directory path (leave empty for auto-detect) |
+
+### Example Config
+
+```properties
+enableCache=true
+generatePlaceholders=true
+maxTextureSize=1024
+verboseLogging=false
+autoDetectGuiBlocks=true
+cacheExpiryHours=24
+modsDirectoryOverride=
+```
+
+## Performance Metrics
+
+AutoBridge tracks performance for each pipeline phase. Enable `verboseLogging=true` to see detailed timing information in the console:
+
+```
+[AutoBridge] Scanning mods... (125ms)
+[AutoBridge] Processing textures... (342ms)
+[AutoBridge] Generating mappings... (89ms)
+[AutoBridge] Building resource pack... (156ms)
+[AutoBridge] Total pipeline time: 712ms
+```
 
 ## Building
 
