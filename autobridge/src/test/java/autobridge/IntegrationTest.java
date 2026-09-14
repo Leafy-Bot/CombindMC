@@ -69,7 +69,9 @@ public class IntegrationTest {
         Path packDir = tempDir.resolve("pack");
         PackBuilder packBuilder = new PackBuilder(packDir);
         Path zip = packBuilder.generatePack(pipeline, result.items(), result.blocks());
-        System.out.println("  Pack: " + zip + " (" + Files.size(zip) / 1024 + " KB)\n");
+        long packBytes = Files.size(zip);
+        String packSizeStr = packBytes < 1024 ? packBytes + " bytes" : (packBytes / 1024) + " KB";
+        System.out.println("  Pack: " + zip + " (" + packSizeStr + ")\n");
 
         // Phase 5: GUI Detection
         System.out.println("[Phase 5] Detecting GUI blocks...");
@@ -100,7 +102,9 @@ public class IntegrationTest {
         System.out.println("Textures: " + (itemsOk + blocksOk));
         System.out.println("Mappings: " + mapper.getMappingCount());
         System.out.println("GUI blocks: " + guiMap.size());
-        System.out.println("Pack size: " + Files.size(zip) / 1024 + " KB");
+        long finalPackBytes = Files.size(zip);
+        String finalPackSizeStr = finalPackBytes < 1024 ? finalPackBytes + " bytes" : (finalPackBytes / 1024) + " KB";
+        System.out.println("Pack size: " + finalPackSizeStr);
 
         // Cleanup
         deleteRecursively(tempDir);

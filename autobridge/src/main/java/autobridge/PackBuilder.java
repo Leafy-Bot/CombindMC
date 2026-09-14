@@ -83,8 +83,9 @@ public class PackBuilder {
 
         lastGeneratedPack = zipPath;
         packCount++;
-        long sizeKB = Files.size(zipPath) / 1024;
-        System.out.println("[PackBuilder] Generated pack: " + zipPath + " (" + sizeKB + " KB)");
+        long sizeBytes = Files.size(zipPath);
+        String sizeStr = sizeBytes < 1024 ? sizeBytes + " bytes" : (sizeBytes / 1024) + " KB";
+        System.out.println("[PackBuilder] Generated pack: " + zipPath + " (" + sizeStr + ")");
         return zipPath;
     }
 
