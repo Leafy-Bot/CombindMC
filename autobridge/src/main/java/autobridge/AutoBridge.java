@@ -46,14 +46,30 @@ public class AutoBridge implements Extension {
 
     private List<ModScanner.ModItem> cachedItems;
     private List<ModScanner.ModBlock> cachedBlocks;
+    
+    private long startTime;
+    private AutoBridgeConfig config;
+
+    @Override
+    public ExtensionLogger logger() {
+        return Extension.super.logger();
+    }
 
     // ==================== Lifecycle Events ====================
 
     @Subscribe
     public void onPostInitialize(GeyserPostInitializeEvent event) {
+        startTime = System.currentTimeMillis();
         logger().info("AutoBridge initializing — starting full auto-pipeline...");
 
         Path dataDir = dataFolder();
+        
+        // Load configuration
+        this.config = new AutoBridgeConfig(dataDir);
+        if (config.isVerboseLogging()) {
+            logger().info("Configuration loaded from " + dataDir.resolve("autobridge.properties"));
+        }
+        
         Path mappingsDir = dataDir.resolve("custom_mappings");
         Path texturesDir = dataDir.resolve("generated_textures");
         Path cacheDir = dataDir.resolve("cache");
@@ -76,25 +92,35 @@ public class AutoBridge implements Extension {
 
         try {
             // Phase 0: Check cache
-            CacheManager.CachedScanData cached = cacheManager.loadCache();
-            if (cached != null && cached.isValid()) {
-                logger().info("Loaded from cache — but still performing full scan for accuracy");
+            if (config.isEnableCache()) {
+                long cacheStart = System.currentTimeMillis();
+                CacheManager.CachedScanData cached = cacheManager.loadCache();
+                if (cached != null && cached.isValid()) {
+                    logger().info("Loaded from cache in " + (System.currentTimeMillis() - cacheStart) + "ms — but still performing full scan for accuracy");
+                }
             }
 
             // Phase 1: Scan mods directory
+            long scanStart = System.currentTimeMillis();
             Path modsDir = findModsDir();
             this.modScanner = new ModScanner(modsDir);
             ModScanner.ScanResult result = modScanner.scan();
             cachedItems = result.items();
             cachedBlocks = result.blocks();
+            long scanTime = System.currentTimeMillis() - scanStart;
 
             logger().info("Discovered " + cachedItems.size() + " items, " + cachedBlocks.size()
-                + " blocks from " + result.mods().size() + " mods");
+                + " blocks from " + result.mods().size() + " mods (scanned in " + scanTime + "ms)");
 
             // Phase 1.5: Detect GUI blocks
-            blockDetector.detectGuiBlocks(cachedBlocks);
+            if (config.isAutoDetectGuiBlocks()) {
+                long guiStart = System.currentTimeMillis();
+                blockDetector.detectGuiBlocks(cachedBlocks);
+                logger().info("Detected " + blockDetector.getGuiCount() + " GUI blocks in " + (System.currentTimeMillis() - guiStart) + "ms");
+            }
 
             // Phase 2: Extract textures
+            long textureStart = System.currentTimeMillis();
             int itemsOk = 0, blocksOk = 0;
             for (ModScanner.ModItem item : cachedItems) {
                 if (texturePipeline.processItemTexture(item, modsDir)) itemsOk++;
@@ -102,26 +128,37 @@ public class AutoBridge implements Extension {
             for (ModScanner.ModBlock block : cachedBlocks) {
                 if (texturePipeline.processBlockTexture(block, modsDir)) blocksOk++;
             }
-            logger().info("Textures: " + itemsOk + " items, " + blocksOk + " blocks processed");
+            long textureTime = System.currentTimeMillis() - textureStart;
+            logger().info("Textures: " + itemsOk + " items, " + blocksOk + " blocks processed in " + textureTime + "ms");
 
             // Phase 3: Generate mappings
+            long mappingStart = System.currentTimeMillis();
             mappingBuilder.generateItemsJson(cachedItems);
             mappingBuilder.generateBlocksJson(cachedBlocks);
-            logger().info("Generated " + mappingBuilder.getMappingCount() + " mappings");
+            long mappingTime = System.currentTimeMillis() - mappingStart;
+            logger().info("Generated " + mappingBuilder.getMappingCount() + " mappings in " + mappingTime + "ms");
 
             // Phase 4: Build resource pack
+            long packStart = System.currentTimeMillis();
             Path pack = packBuilder.generatePack(texturePipeline, cachedItems, cachedBlocks);
+            long packTime = System.currentTimeMillis() - packStart;
             if (pack != null) {
-                logger().info("Resource pack generated: " + pack);
+                logger().info("Resource pack generated in " + packTime + "ms: " + pack);
             }
 
             // Phase 5: Save cache
-            cacheManager.saveCache(cachedItems, cachedBlocks);
+            if (config.isEnableCache()) {
+                cacheManager.saveCache(cachedItems, cachedBlocks);
+            }
 
-            logger().info("AutoBridge auto-pipeline complete");
+            long totalTime = System.currentTimeMillis() - startTime;
+            logger().info("AutoBridge auto-pipeline complete (total time: " + totalTime + "ms)");
 
         } catch (Exception e) {
             logger().error("Auto-pipeline failed: " + e.getMessage());
+            if (config.isVerboseLogging()) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -252,9 +289,20 @@ public class AutoBridge implements Extension {
     // ==================== Helpers ====================
 
     /**
-     * Find the mods directory. Checks common locations.
+     * Find the mods directory. Checks config override first, then common locations.
      */
     private Path findModsDir() {
+        // Check config override first
+        String override = config.getModsDirectoryOverride();
+        if (override != null && !override.isEmpty()) {
+            Path overridePath = Path.of(override);
+            if (Files.exists(overridePath) && Files.isDirectory(overridePath)) {
+                logger().info("Using mods directory from config: " + overridePath);
+                return overridePath;
+            }
+        }
+        
+        // Check common locations
         Path[] candidates = {
             Path.of("mods"),
             Path.of(System.getProperty("user.dir"), "mods"),
