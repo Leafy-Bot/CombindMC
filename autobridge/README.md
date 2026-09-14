@@ -50,7 +50,25 @@ Bedrock players connect → receive pack → see & interact with mod content
 | **GuiTranslator** | `GuiTranslator.java` | Generates form descriptions for mod GUIs (ME Terminal, Crafting CPU) |
 | **AutoBridge** | `AutoBridge.java` | Geyser Extension — wires pipeline to Geyser events |
 
-## Testing
+## Building
+
+### Quick Build (Windows)
+
+Run `build.bat` to compile everything and build the extension JAR:
+
+```bash
+build.bat
+```
+
+This will:
+- Compile all pipeline modules
+- Compile AutoBridge (Geyser Extension)
+- Compile test harness
+- Build `AutoBridge-0.1.0-SNAPSHOT.jar` in the `build/` directory
+
+### Manual Build
+
+If you prefer manual compilation or are on a different platform:
 
 ```bash
 # Compile pipeline modules (no Geyser needed)
@@ -62,12 +80,26 @@ javac -d build/classes src/main/java/autobridge/ModScanner.java \
   src/main/java/autobridge/CacheManager.java \
   src/main/java/autobridge/GuiTranslator.java
 
+# Compile AutoBridge (needs Geyser API)
+javac -cp "build/classes;libs/geyser-api.jar;libs/base-api.jar;libs/events.jar;libs/annotations.jar" \
+  -d build/classes src/main/java/autobridge/AutoBridge.java
+
 # Compile test harness
 javac -cp build/classes -d build/classes \
   src/test/java/autobridge/TestHarness.java
 
-# Run tests
+# Build extension JAR
+# (Use build.bat or manually package classes + extension.yml)
+```
+
+## Testing
+
+```bash
+# Run unit tests
 java -cp build/classes autobridge.TestHarness
+
+# Run integration test (requires test-mods/ directory with mod JARs)
+java -cp build/classes autobridge.IntegrationTest
 ```
 
 **Test results:**
