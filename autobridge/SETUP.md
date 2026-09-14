@@ -4,11 +4,11 @@ This guide walks you through setting up a NeoForge server with Geyser, Floodgate
 
 ## Prerequisites
 
-- **Java 25** (required by Hydraulic and recommended for best compatibility)
+- **Java 21+** (Java 25 recommended)
 - A machine with at least 8GB RAM dedicated to the server
 - Port access for TCP 25565 (Java) and UDP 19132 (Bedrock)
-- Minecraft Java Edition 1.26.2 clients (for Java players)
-- Minecraft Bedrock Edition 26.0–26.4x clients (for Bedrock players)
+- Minecraft Java Edition 1.21+ clients (for Java players)
+- Minecraft Bedrock Edition clients (for Bedrock players)
 
 ## Step 1: Install NeoForge
 
