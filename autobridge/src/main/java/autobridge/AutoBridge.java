@@ -286,6 +286,16 @@ public class AutoBridge implements Extension {
             + ", GUIs: " + (blockDetector != null ? blockDetector.getGuiCount() : 0));
     }
 
+    // ==================== Getters for Command Provider ====================
+
+    public List<ModScanner.ModItem> getCachedItems() { return cachedItems; }
+    public List<ModScanner.ModBlock> getCachedBlocks() { return cachedBlocks; }
+    public AutoBlockDetector getBlockDetector() { return blockDetector; }
+    public MappingBuilder getMappingBuilder() { return mappingBuilder; }
+    public PackBuilder getPackBuilder() { return packBuilder; }
+    public CacheManager getCacheManager() { return cacheManager; }
+    public AutoBridgeConfig getConfig() { return config; }
+
     // ==================== Helpers ====================
 
     /**
