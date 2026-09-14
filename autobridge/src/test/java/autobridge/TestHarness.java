@@ -135,8 +135,9 @@ public class TestHarness {
             if (zip == null) throw new RuntimeException("generatePack returned null");
             if (!Files.exists(zip)) throw new RuntimeException("Pack zip not created");
 
-            long sizeKB = Files.size(zip) / 1024;
-            System.out.println("  PASSED — AutoBridge_Pack.zip (" + sizeKB + " KB)");
+            long sizeBytes = Files.size(zip);
+            String sizeStr = sizeBytes < 1024 ? sizeBytes + " bytes" : (sizeBytes / 1024) + " KB";
+            System.out.println("  PASSED — AutoBridge_Pack.zip (" + sizeStr + ")");
             passed++;
         } catch (Exception e) {
             System.out.println("  FAILED — " + e.getMessage());
