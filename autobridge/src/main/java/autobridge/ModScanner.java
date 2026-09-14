@@ -17,10 +17,10 @@ import java.util.stream.Stream;
  * ModScanner — Reads mod JARs directly from disk to discover blocks and items.
  *
  * Does NOT require a Minecraft server or NeoForge runtime. Parses:
- * - neoforge.mods.toml / META-INF/mods.toml for mod metadata
- * - assets/*/models/item/*.json for item definitions
- * - assets/*/models/block/*.json for block definitions
- * - assets/*/textures/items/*.png and assets/*/textures/block/*.png for textures
+ * neoforge.mods.toml / META-INF/mods.toml for mod metadata,
+ * assets/NAMESPACE/models/item/ for item definitions,
+ * assets/NAMESPACE/models/block/ for block definitions,
+ * assets/NAMESPACE/textures/ for textures.
  *
  * This makes the entire pipeline testable without a running Minecraft server.
  */
@@ -260,7 +260,7 @@ public class ModScanner {
     private int detectLightEmission(JarFile jar, String namespace, String blockName) {
         // Check if the block model references a "glow" or "light" texture
         String modelPath = "assets/" + namespace + "/models/block/" + blockName + ".json";
-        JarEntry entry = jar.getEntry(modelPath);
+        JarEntry entry = jar.getJarEntry(modelPath);
         if (entry == null) return 0;
 
         try (InputStream is = jar.getInputStream(entry)) {

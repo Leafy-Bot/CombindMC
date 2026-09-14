@@ -118,7 +118,7 @@ public class TexturePipeline {
                         "assets/" + namespace + "/textures/" + textureDir + "s/" + name + ".png"
                     };
                     for (String candidate : candidates) {
-                        JarEntry entry = jar.getEntry(candidate);
+                        JarEntry entry = jar.getJarEntry(candidate);
                         if (entry != null && !entry.isDirectory()) {
                             Path tempFile = outputDir.resolve("_temp_extract.png");
                             try (InputStream is = jar.getInputStream(entry)) {
