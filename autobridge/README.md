@@ -2,7 +2,7 @@
 
 Open-source Geyser Extension that **fully automatically** discovers loaded mods, extracts their textures, generates Bedrock-compatible mappings and resource packs, and registers everything through Geyser's API. **Zero manual configuration per mod. Zero manual mapping.**
 
-## How It Works (Fully Automatic)
+## How It Works
 
 ```
 Server starts → NeoForge loads mods
